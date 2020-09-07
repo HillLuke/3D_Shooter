@@ -44,6 +44,7 @@ public class PlayerController : MonoBehaviour
 
         m_HeadBob.Setup(MainCamera, m_StepInterval);
         m_playerLook.Init(transform, MainCamera.transform);
+        m_FovKick.Setup(MainCamera);
         m_OriginalCameraPosition = MainCamera.transform.localPosition;
         m_StepCycle = 0f;
         m_NextStep = m_StepCycle / 2f;
@@ -123,7 +124,7 @@ public class PlayerController : MonoBehaviour
         float vertical = Input.GetAxis("Vertical");
 
         bool waswalking = m_isWalking;
-
+        m_isWalking = !Input.GetKey(KeyCode.LeftShift);
         // set the desired speed to be walking or running
         speed = m_isWalking ? m_walkSpeed : m_runSpeed;
         m_Input = new Vector2(horizontal, vertical);

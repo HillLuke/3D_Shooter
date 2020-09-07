@@ -47,6 +47,6 @@ public class CurveControlledBob
             m_CyclePositionY = m_CyclePositionY - m_Time;
         }
 
-        return new Vector3(xPos, yPos, 0f);
+        return new Vector3(xPos, yPos, m_OriginalCameraPosition.z);
     }
 }
