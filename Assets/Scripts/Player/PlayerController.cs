@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     public Camera MainCamera;
     public AudioListener AudioListener;
     public Transform RotatePoint;
+    public Animator Animator;
 
     [SerializeField] private bool m_isWalking;
     [SerializeField] private float m_walkSpeed;
@@ -34,6 +35,7 @@ public class PlayerController : MonoBehaviour
     private bool m_PreviouslyGrounded;
     private bool m_Jumping;
     private Vector2 m_Input;
+    private bool m_isIdle;
 
     // Start is called before the first frame update
     private void Start()
@@ -75,6 +77,27 @@ public class PlayerController : MonoBehaviour
         }
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
 
+        if (m_isIdle & m_CharacterController.isGrounded)
+        {
+            Animator.SetBool("Running", false);
+            Animator.SetBool("Walking", false);
+            Animator.SetBool("Jumping", false);
+        }
+        else
+        {
+            if (m_Jumping)
+            {
+                Animator.SetBool("Jumping", true);
+                Animator.SetBool("Running", false);
+                Animator.SetBool("Walking", false);
+            }
+            else
+            {
+                Animator.SetBool("Jumping", false);
+                Animator.SetBool("Running", !m_isWalking);
+                Animator.SetBool("Walking", m_isWalking);
+            }           
+        }
     }
 
     private void FixedUpdate()
@@ -135,12 +158,24 @@ public class PlayerController : MonoBehaviour
             m_Input.Normalize();
         }
 
+        if (horizontal == 0 && vertical == 0)
+        {
+            m_isIdle = true;
+        }
+        else
+        {
+            m_isIdle = false;
+        }
+
         // handle speed change to give an fov kick
         // only if the player is going to a run, is running and the fovkick is to be used
         if (m_isWalking != waswalking && m_useFovKick && m_CharacterController.velocity.sqrMagnitude > 0)
-        {
+        {            
             StopAllCoroutines();
             StartCoroutine(!m_isWalking ? m_FovKick.FOVKickUp() : m_FovKick.FOVKickDown());
+        }
+        else
+        {
         }
     }
 

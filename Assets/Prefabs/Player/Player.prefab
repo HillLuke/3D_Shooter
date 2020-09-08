@@ -847,6 +847,7 @@ MonoBehaviour:
   MainCamera: {fileID: 7068115681386061761}
   AudioListener: {fileID: 7068115681386061760}
   RotatePoint: {fileID: 13690726364591411}
+  Animator: {fileID: 13690726357097105}
   m_isWalking: 0
   m_walkSpeed: 5
   m_runSpeed: 10
@@ -2986,7 +2987,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.1
+  near clip plane: 0.01
   far clip plane: 10
   field of view: 60
   orthographic: 0
