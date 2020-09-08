@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 33343903869988276}
   - component: {fileID: 23302719169258506}
   - component: {fileID: 3522983282906990688}
+  - component: {fileID: 3059770322394215076}
   m_Layer: 0
   m_Name: Bush_2
   m_TagString: Untagged
@@ -97,3 +98,17 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300000, guid: 87ad1332cfca6934ea307ce26bfc9dec, type: 3}
+--- !u!136 &3059770322394215076
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715284614105008}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.7742753
+  m_Height: 2.5438507
+  m_Direction: 1
+  m_Center: {x: 0.011352092, y: 1.2039646, z: -0.09755385}
