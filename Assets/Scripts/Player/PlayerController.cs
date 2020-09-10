@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
         m_AudioSource = GetComponent<AudioSource>();
 
         m_HeadBob.Setup(MainCamera, m_StepInterval);
-        m_playerLook.Init(transform, MainCamera.transform);
+        m_playerLook.Init(transform, RotatePoint);
         m_FovKick.Setup(MainCamera);
         m_OriginalCameraPosition = MainCamera.transform.localPosition;
         m_StepCycle = 0f;
@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         //Rotate to face mouse
-        m_playerLook.LookRotation(transform, MainCamera.transform);
+        m_playerLook.LookRotation(transform, RotatePoint);
 
         // the jump state needs to read here to make sure it is not missed
         if (!m_Jump)

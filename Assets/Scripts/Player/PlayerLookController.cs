@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerLookController : MonoBehaviour
 {
@@ -14,7 +15,8 @@ public class PlayerLookController : MonoBehaviour
     public float smoothTime = 5f;
     public bool lockCursor = true;
 
-
+    public Transform RootAim;
+    public Transform Cube;
     private Quaternion m_CharacterTargetRot;
     private Quaternion m_CameraTargetRot;
     private bool m_cursorIsLocked = true;
@@ -30,7 +32,7 @@ public class PlayerLookController : MonoBehaviour
         float yRot = Input.GetAxis("Mouse X") * XSensitivity;
         float xRot = Input.GetAxis("Mouse Y") * YSensitivity;
 
-        //Debug.Log(xRot.ToString() + "   --   "  + yRot.ToString());
+        Cube.position = RootAim.position;
 
         m_CharacterTargetRot *= Quaternion.Euler(0f, yRot, 0f);
         m_CameraTargetRot *= Quaternion.Euler(-xRot, 0f, 0f);
@@ -49,6 +51,7 @@ public class PlayerLookController : MonoBehaviour
         {
             character.localRotation = m_CharacterTargetRot;
             camera.localRotation = m_CameraTargetRot;
+            //transform.localRotation = m_CharacterTargetRot;
         }
 
         UpdateCursorLock();
