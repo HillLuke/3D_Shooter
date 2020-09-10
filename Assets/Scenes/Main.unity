@@ -631,7 +631,7 @@ GameObject:
   - component: {fileID: 193667408}
   - component: {fileID: 193667407}
   m_Layer: 0
-  m_Name: TargetUpdateer
+  m_Name: TargetUpdater
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
