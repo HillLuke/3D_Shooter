@@ -11,6 +11,11 @@ public class SpawnManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Respawn();
+    }
+
+    public void Respawn()
+    {
         Vector3 origin = SpawnArea.position;
         Vector3 range = SpawnArea.localScale / 2.0f;
         Vector3 randomRange = new Vector3(Random.Range(-range.x, range.x),
@@ -19,5 +24,12 @@ public class SpawnManager : MonoBehaviour
         Vector3 randomCoordinate = origin + randomRange;
 
         Player = Instantiate(PlayerPrefab, randomCoordinate, Quaternion.identity);
+        var health = Player.GetComponent<Health>();
+        health.onDie += OnDie;
+    }
+
+    void OnDie()
+    {
+        Debug.Log("Dead!");
     }
 }

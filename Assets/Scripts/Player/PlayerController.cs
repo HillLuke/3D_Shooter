@@ -1,15 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("General")]
     public Camera MainCamera;
     public AudioListener AudioListener;
     public Transform RotatePoint;
     public Animator Animator;
+    public Health Health;
 
-    [SerializeField] private bool m_isWalking;
+    [Header("Movement")]
     [SerializeField] private float m_walkSpeed;
     [SerializeField] private float m_runSpeed;
     [SerializeField] private float m_jumpSpeed;
@@ -22,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CurveControlledBob m_HeadBob = new CurveControlledBob();
     [SerializeField] private FOVKick m_FovKick = new FOVKick();
     [SerializeField] private LerpControlledBob m_JumpBob = new LerpControlledBob();
+    [SerializeField] private float m_killHeight = -50f;
 
     private CharacterController m_CharacterController;
     private PlayerLookController m_playerLook;
@@ -34,8 +36,10 @@ public class PlayerController : MonoBehaviour
     private bool m_Jump;
     private bool m_PreviouslyGrounded;
     private bool m_Jumping;
+    private bool m_isWalking;
     private Vector2 m_Input;
     private bool m_isIdle;
+    private GameObject m_worldTarget;
 
     // Start is called before the first frame update
     private void Start()
@@ -43,6 +47,7 @@ public class PlayerController : MonoBehaviour
         m_CharacterController = GetComponent<CharacterController>();
         m_playerLook = GetComponent<PlayerLookController>();
         m_AudioSource = GetComponent<AudioSource>();
+        Health = GetComponent<Health>();
 
         m_HeadBob.Setup(MainCamera, m_StepInterval);
         m_playerLook.Init(transform, RotatePoint);
@@ -51,11 +56,18 @@ public class PlayerController : MonoBehaviour
         m_StepCycle = 0f;
         m_NextStep = m_StepCycle / 2f;
         m_Jumping = false;
+
+        Health.onDie += OnDie;
     }
 
     // Update is called once per frame
     private void Update()
     {
+        if (Health.IsAlive && transform.position.y < m_killHeight)
+        {
+            Health.Kill();
+        }
+
         //Rotate to face mouse
         m_playerLook.LookRotation(transform, RotatePoint);
 
@@ -219,5 +231,10 @@ public class PlayerController : MonoBehaviour
             newCameraPosition.y = m_OriginalCameraPosition.y - m_JumpBob.Offset();
         }
         MainCamera.transform.localPosition = newCameraPosition;
+    }
+
+    void OnDie()
+    {
+        //TODO: Handle death
     }
 }
