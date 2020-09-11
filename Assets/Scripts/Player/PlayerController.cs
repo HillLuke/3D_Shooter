@@ -1,8 +1,12 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
 {
+    //TODO Find a better way to keep a reference to local player
+    public static PlayerController Instance { get; protected set; }
+
     [Header("General")]
     public Camera MainCamera;
     public AudioListener AudioListener;
@@ -10,19 +14,24 @@ public class PlayerController : MonoBehaviour
     public Animator Animator;
     public Health Health;
 
-    [Header("Movement")]
+    [Header("Walking")]
     [SerializeField] private float m_walkSpeed;
+    [SerializeField] private float m_StepInterval;
+    [Header("Running")]
     [SerializeField] private float m_runSpeed;
+    [SerializeField] [Range(0f, 1f)] private float m_RunstepLenghten;
+    public float CurrentStamina;
+    public float MaxStamina = 100f;
+    [Header("Jumping")]
     [SerializeField] private float m_jumpSpeed;
+    [SerializeField] private LerpControlledBob m_JumpBob = new LerpControlledBob();
+    [Header("General Movement")]
     [SerializeField] private float m_gravityMultiplier;
     [SerializeField] private float m_StickToGroundForce;
-    [SerializeField] private float m_StepInterval;
-    [SerializeField] [Range(0f, 1f)] private float m_RunstepLenghten;
     [SerializeField] private bool m_useheadBob;
     [SerializeField] private bool m_useFovKick;
     [SerializeField] private CurveControlledBob m_HeadBob = new CurveControlledBob();
     [SerializeField] private FOVKick m_FovKick = new FOVKick();
-    [SerializeField] private LerpControlledBob m_JumpBob = new LerpControlledBob();
     [SerializeField] private float m_killHeight = -50f;
 
     private CharacterController m_CharacterController;
@@ -39,7 +48,11 @@ public class PlayerController : MonoBehaviour
     private bool m_isWalking;
     private Vector2 m_Input;
     private bool m_isIdle;
-    private GameObject m_worldTarget;
+
+    private float StaminaRegenTimer = 0.0f;
+    private const float StaminaDecreasePerFrame = 10.0f;
+    private const float StaminaIncreasePerFrame = 20.0f;
+    private const float StaminaTimeToRegen = 3.0f;
 
     // Start is called before the first frame update
     private void Start()
@@ -56,8 +69,13 @@ public class PlayerController : MonoBehaviour
         m_StepCycle = 0f;
         m_NextStep = m_StepCycle / 2f;
         m_Jumping = false;
+        CurrentStamina = MaxStamina;
 
         Health.onDie += OnDie;
+
+        StartCoroutine(Regen());
+
+        Instance = this;
     }
 
     // Update is called once per frame
@@ -88,6 +106,21 @@ public class PlayerController : MonoBehaviour
             m_MoveDir.y = 0f;
         }
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
+
+
+        Debug.Log($"Walking {m_isWalking}  idle {m_isIdle}");
+        if (!m_isWalking && !m_isIdle)
+        {
+            CurrentStamina = Mathf.Clamp(CurrentStamina - (StaminaDecreasePerFrame * Time.deltaTime), 0.0f, MaxStamina);
+            StaminaRegenTimer = 0.0f;
+        }
+        else if (CurrentStamina < MaxStamina)
+        {
+            if (StaminaRegenTimer >= StaminaTimeToRegen)
+                CurrentStamina = Mathf.Clamp(CurrentStamina + (StaminaIncreasePerFrame * Time.deltaTime), 0.0f, MaxStamina);
+            else
+                StaminaRegenTimer += Time.deltaTime;
+        }
 
         if (m_isIdle & m_CharacterController.isGrounded)
         {
@@ -161,8 +194,11 @@ public class PlayerController : MonoBehaviour
         Animator.SetFloat("Dirx", horizontal);
         Animator.SetFloat("Diry", vertical);
 
+        m_isIdle = horizontal == 0 && vertical == 0;
+
         bool waswalking = m_isWalking;
         m_isWalking = !Input.GetKey(KeyCode.LeftShift);
+
         // set the desired speed to be walking or running
         speed = m_isWalking ? m_walkSpeed : m_runSpeed;
         m_Input = new Vector2(horizontal, vertical);
@@ -171,15 +207,6 @@ public class PlayerController : MonoBehaviour
         if (m_Input.sqrMagnitude > 1)
         {
             m_Input.Normalize();
-        }
-
-        if (horizontal == 0 && vertical == 0)
-        {
-            m_isIdle = true;
-        }
-        else
-        {
-            m_isIdle = false;
         }
 
         // handle speed change to give an fov kick
@@ -236,5 +263,35 @@ public class PlayerController : MonoBehaviour
     void OnDie()
     {
         //TODO: Handle death
+    }
+
+    IEnumerator Regen()
+    {
+        while (true)
+        {
+            //if (m_staminaRegen != 0)
+            //{
+            //    m_staminaRegen--;
+            //    Debug.Log($"regen {m_staminaRegen}");
+            //    yield return new WaitForSeconds(1);
+            //}
+            //else
+            //{
+            //    if (CurrentStamina < MaxStamina)
+            //    {
+            //        CurrentStamina +=5;
+            //        Debug.Log($"stam {CurrentStamina}");
+            //        yield return new WaitForSeconds(1);
+            //    }
+            //}
+
+            //if (!m_isWalking)
+            //{
+            //    CurrentStamina-=5;
+            //    Debug.Log("Running");
+            //}
+
+            yield return new WaitForSeconds(1);
+        }
     }
 }
