@@ -146,6 +146,9 @@ public class PlayerController : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
+        Animator.SetFloat("Dirx", horizontal);
+        Animator.SetFloat("Diry", vertical);
+
         bool waswalking = m_isWalking;
         m_isWalking = !Input.GetKey(KeyCode.LeftShift);
         // set the desired speed to be walking or running
