@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -107,8 +108,6 @@ public class PlayerController : MonoBehaviour
         }
         m_PreviouslyGrounded = m_CharacterController.isGrounded;
 
-
-        Debug.Log($"Walking {m_isWalking}  idle {m_isIdle}");
         if (!m_isWalking && !m_isIdle)
         {
             CurrentStamina = Mathf.Clamp(CurrentStamina - (StaminaDecreasePerFrame * Time.deltaTime), 0.0f, MaxStamina);
@@ -269,27 +268,8 @@ public class PlayerController : MonoBehaviour
     {
         while (true)
         {
-            //if (m_staminaRegen != 0)
-            //{
-            //    m_staminaRegen--;
-            //    Debug.Log($"regen {m_staminaRegen}");
-            //    yield return new WaitForSeconds(1);
-            //}
-            //else
-            //{
-            //    if (CurrentStamina < MaxStamina)
-            //    {
-            //        CurrentStamina +=5;
-            //        Debug.Log($"stam {CurrentStamina}");
-            //        yield return new WaitForSeconds(1);
-            //    }
-            //}
 
-            //if (!m_isWalking)
-            //{
-            //    CurrentStamina-=5;
-            //    Debug.Log("Running");
-            //}
+
 
             yield return new WaitForSeconds(1);
         }
