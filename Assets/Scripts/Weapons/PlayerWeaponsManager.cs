@@ -54,8 +54,6 @@ public class PlayerWeaponsManager : MonoBehaviour
     {
         WeaponController activeWeapon = GetActiveWeapon();
 
-
-
         // Pointing at enemy handling
         IsPointingAtEnemy = false;
         if (activeWeapon)
@@ -65,6 +63,10 @@ public class PlayerWeaponsManager : MonoBehaviour
                 if (hit.collider.GetComponentInParent<EnemyController>())
                 {
                     IsPointingAtEnemy = true;
+                }
+                if (Target != null)
+                {
+                    Target.transform.position = hit.point;
                 }
             }
         }

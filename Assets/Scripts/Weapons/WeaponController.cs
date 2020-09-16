@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UIElements;
 
 public enum WeaponShootType
 {
@@ -188,10 +189,9 @@ public class WeaponController : MonoBehaviour
             Vector3 fromPosition = ownerWeaponManager.Muzzle.transform.position;
             Vector3 toPosition = ownerWeaponManager.Target.transform.position;
             Vector3 direction = toPosition - fromPosition;
+            Vector3 centerCamera = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 0));
 
-
-            Vector3 shotDirection = GetShotDirectionWithinSpread(muzzle);
-            ProjectileBase newProjectile = Instantiate(projectilePrefab, fromPosition, Quaternion.LookRotation(direction));
+            ProjectileBase newProjectile = Instantiate(projectilePrefab, fromPosition, Quaternion.LookRotation(GetShotDirectionWithinSpread(direction)));
             newProjectile.Shoot(this);
         }
 
@@ -229,10 +229,10 @@ public class WeaponController : MonoBehaviour
         }
     }
 
-    public Vector3 GetShotDirectionWithinSpread(Transform shootTransform)
+    public Vector3 GetShotDirectionWithinSpread(Vector3 point)
     {
         float spreadAngleRatio = bulletSpreadAngle / 180f;
-        Vector3 spreadWorldDirection = Vector3.Slerp(shootTransform.forward, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+        Vector3 spreadWorldDirection = Vector3.Slerp(point, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
 
         return spreadWorldDirection;
     }
