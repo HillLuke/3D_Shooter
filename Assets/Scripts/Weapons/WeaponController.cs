@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -68,8 +69,9 @@ public class WeaponController : MonoBehaviour
 
     public UnityAction onShoot;
 
-    float m_CurrentAmmo;
+    public float currentAmmo;
     float m_LastTimeShot = Mathf.NegativeInfinity;
+    float m_reloadStart;
     float m_TimeBeginCharge;
     Vector3 m_LastMuzzlePosition;
 
@@ -84,12 +86,12 @@ public class WeaponController : MonoBehaviour
     public float GetAmmoNeededToShoot() => (1) / maxAmmo;
 
     AudioSource m_ShootAudioSource;
-
+    private bool m_reloading;
     const string k_AnimAttackParameter = "Attack";
 
     void Awake()
     {
-        m_CurrentAmmo = maxAmmo;
+        currentAmmo = maxAmmo;
 
         m_ShootAudioSource = GetComponent<AudioSource>();
     }
@@ -107,21 +109,27 @@ public class WeaponController : MonoBehaviour
 
     void UpdateAmmo()
     {
-        if (m_LastTimeShot + ammoReloadDelay < Time.time && m_CurrentAmmo < maxAmmo && !isCharging)
+        if (currentAmmo == 0 && !m_reloading)
         {
-            // reloads weapon over time
-            //m_CurrentAmmo += ammoReloadRate * Time.deltaTime;
-            m_CurrentAmmo = maxAmmo;
-
-            // limits ammo to max value
-            m_CurrentAmmo = Mathf.Clamp(m_CurrentAmmo, 0, maxAmmo);
-
-            isCooling = true;
+            m_reloadStart = Time.time;
+            m_reloading = true;
+            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
+            owner.GetComponent<PlayerController>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
         }
-        else
+
+        if (m_reloading && Time.time - m_reloadStart > ammoReloadRate)
         {
-            isCooling = false;
+            Debug.Log($"Reloaded");
+            m_reloading = false;
+            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
+            currentAmmo = maxAmmo;
         }
+
+        //if (m_LastTimeShot + ammoReloadDelay < Time.time && m_reloading)
+        //{
+        //    // reloads weapon
+        //    m_CurrentAmmo = maxAmmo;
+        //}
 
         if (maxAmmo == Mathf.Infinity)
         {
@@ -129,18 +137,39 @@ public class WeaponController : MonoBehaviour
         }
         else
         {
-            currentAmmoRatio = m_CurrentAmmo / maxAmmo;
+            currentAmmoRatio = currentAmmo / maxAmmo;
         }
+        if (isWeaponActive)
+        {
+            //Debug.Log($"max {maxAmmo} current {currentAmmo}");
+        }
+    }
+
+    IEnumerator Reload()
+    {
+        m_reloading = true;
+        owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
+        owner.GetComponent<PlayerController>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
+        yield return new WaitForSeconds(ammoReloadRate);
+        //Debug.Log($"Reloaded {ammoReloadRate}");
+        owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
+        m_reloading = false;
+        currentAmmo = maxAmmo;
     }
 
     public void UseAmmo(float amount)
     {
-        m_CurrentAmmo = Mathf.Clamp(m_CurrentAmmo - amount, 0f, maxAmmo);
+        currentAmmo = Mathf.Clamp(currentAmmo - amount, 0f, maxAmmo);
         m_LastTimeShot = Time.time;
     }
 
     public bool HandleShootInputs(bool inputDown, bool inputHeld)
     {
+        if (m_reloading)
+        {
+            return false;
+        }
+
         switch (shootType)
         {
             case WeaponShootType.Manual:
@@ -164,13 +193,13 @@ public class WeaponController : MonoBehaviour
 
     bool TryShoot()
     {
-        bool hasEnoughAmmo = m_CurrentAmmo >= 1f;
+        bool hasEnoughAmmo = currentAmmo >= 1f;
         bool enoughTimePast = m_LastTimeShot + delayBetweenShots < Time.time;
         if (hasEnoughAmmo
             && enoughTimePast)
         {
             HandleShoot();
-            m_CurrentAmmo -= 1;
+            currentAmmo -= 1;
             return true;
         }
 

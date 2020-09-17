@@ -43,7 +43,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a01e69bd3ed3eb546be3b3e85e835fe1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponName: Pewpew
+  weaponName: Single
   weaponIcon: {fileID: 0}
   crosshairDataDefault:
     crosshairSprite: {fileID: 0}
@@ -55,7 +55,7 @@ MonoBehaviour:
   delayBetweenShots: 0.15
   bulletSpreadAngle: -1
   bulletsPerShot: 1
-  ammoReloadRate: 0.5
+  ammoReloadRate: 1
   ammoReloadDelay: 1
   maxAmmo: 10
   weaponAnimator: {fileID: 0}
@@ -63,3 +63,4 @@ MonoBehaviour:
   unparentMuzzleFlash: 0
   shootSFX: {fileID: 0}
   changeWeaponSFX: {fileID: 0}
+  currentAmmo: 0

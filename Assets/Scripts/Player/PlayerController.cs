@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public Transform RotatePoint;
     public Animator Animator;
     public Health Health;
+    public PlayerWeaponsManager PlayerWeaponsManager;
 
     [Header("Walking")]
     [SerializeField] private float m_walkSpeed;
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
         m_playerLook = GetComponent<PlayerLookController>();
         m_AudioSource = GetComponent<AudioSource>();
         Health = GetComponent<Health>();
+        PlayerWeaponsManager = GetComponent<PlayerWeaponsManager>();
 
         m_HeadBob.Setup(MainCamera, m_StepInterval);
         m_playerLook.Init(transform, RotatePoint);
