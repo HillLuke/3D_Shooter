@@ -200,6 +200,11 @@ public class PlayerController : MonoBehaviour
         bool waswalking = m_isWalking;
         m_isWalking = !Input.GetKey(KeyCode.LeftShift);
 
+        if (!m_isWalking && CurrentStamina == 0)
+        {
+            m_isWalking = true;
+        }
+
         // set the desired speed to be walking or running
         speed = m_isWalking ? m_walkSpeed : m_runSpeed;
         m_Input = new Vector2(horizontal, vertical);

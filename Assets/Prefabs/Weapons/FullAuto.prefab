@@ -57,7 +57,7 @@ MonoBehaviour:
   bulletsPerShot: 1
   ammoReloadRate: 1
   ammoReloadDelay: 1
-  maxAmmo: 5
+  maxAmmo: 30
   weaponAnimator: {fileID: 0}
   muzzleFlashPrefab: {fileID: 0}
   unparentMuzzleFlash: 0

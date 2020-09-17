@@ -18,6 +18,6 @@ public class WeaponHUD : MonoBehaviour
     {
            WeaponController playerWeapon = PlayerController.Instance?.PlayerWeaponsManager.GetActiveWeapon();
         Name.text = playerWeapon.weaponName;
-        Ammo.text = $"{playerWeapon.currentAmmo}/{playerWeapon.maxAmmo}";
+        Ammo.text = playerWeapon.currentAmmo > 0 ? $"{playerWeapon.currentAmmo}/{playerWeapon.maxAmmo}" : "Reloading...";
     }
 }

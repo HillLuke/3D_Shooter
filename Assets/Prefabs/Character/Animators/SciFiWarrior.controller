@@ -508,7 +508,7 @@ AnimatorController:
     m_SyncedLayerAffectsTiming: 0
     m_Controller: {fileID: 9100000}
   - serializedVersion: 5
-    m_Name: sss
+    m_Name: Reload
     m_StateMachine: {fileID: -8045633444512792213}
     m_Mask: {fileID: 31900000, guid: e0402be4321aa2646a7af179c44591a7, type: 2}
     m_Motions: []
