@@ -236,4 +236,16 @@ public class WeaponController : MonoBehaviour
 
         return spreadWorldDirection;
     }
+
+    public void ShowWeapon(bool show)
+    {
+        weaponRoot.SetActive(show);
+
+        if (show && changeWeaponSFX)
+        {
+            m_ShootAudioSource.PlayOneShot(changeWeaponSFX);
+        }
+
+        isWeaponActive = show;
+    }
 }

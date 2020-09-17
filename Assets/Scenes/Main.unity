@@ -11851,10 +11851,13 @@ MonoBehaviour:
   Muzzle: {fileID: 2126967300}
   Target: {fileID: 8262528194449738395}
   StartingWeapons:
-  - {fileID: 9102664161438329156, guid: 9718e03b39a003249aac3e05dcd694fb, type: 3}
+  - {fileID: 1584423579152977223, guid: d4437be8e95cf6349baa270602075188, type: 3}
+  - {fileID: 3422635439050988268, guid: 2da419836cac7c444a5ac0450454aec3, type: 3}
+  - {fileID: 6878000448481811609, guid: c5ace564eb8abe445a0f2176f51338b3, type: 3}
   FPSWeaponLayer:
     serializedVersion: 2
     m_Bits: 512
+  weaponSwitchDelay: 0.1
 --- !u!137 &8262528194143423660
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0

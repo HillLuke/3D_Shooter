@@ -21,6 +21,7 @@ public class PlayerWeaponsManager : MonoBehaviour
     public int ActiveWeaponIndex { get; private set; }
     public bool IsPointingAtEnemy { get; private set; }
     public LayerMask FPSWeaponLayer;
+    public float weaponSwitchDelay = 1f;
 
     public UnityAction<WeaponController> onSwitchedToWeapon;
     public UnityAction<WeaponController, int> onAddedWeapon;
@@ -40,6 +41,7 @@ public class PlayerWeaponsManager : MonoBehaviour
         
         ActiveWeaponIndex = -1;
         m_WeaponSwitchState = WeaponSwitchState.Down;
+        onSwitchedToWeapon += OnWeaponSwitched;
 
         foreach (var weapon in StartingWeapons)
         {
@@ -52,6 +54,19 @@ public class PlayerWeaponsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // weapon switch handling
+        string axisName = "Mouse ScrollWheel";
+        int change = 0;
+        if (Input.GetAxis(axisName) > 0f)
+            change = -1;
+        else if (Input.GetAxis(axisName) < 0f)
+            change = 1;
+        if (change != 0)
+        {
+            bool switchUp = change > 0;
+            SwitchWeapon(switchUp);
+        }
+
         WeaponController activeWeapon = GetActiveWeapon();
 
         // Pointing at enemy handling
@@ -74,13 +89,65 @@ public class PlayerWeaponsManager : MonoBehaviour
         bool hasFired = activeWeapon.HandleShootInputs(
                 GetFireInputDown(),
                 GetFireInputHeld());
+    }
 
-        //always fire - testing
-        //bool hasFired = activeWeapon.HandleShootInputs(
-        //GetFireInputDown(),
-        //true);
+    private void LateUpdate()
+    {
+        UpdateWeaponSwitching();
+        m_FireInputWasHeld = GetFireInputHeld();
+    }
 
-        //Debug.Log($"Automatic  {hasFired}  {GetFireInputDown()} {GetFireInputHeld()}");
+    void UpdateWeaponSwitching()
+    {
+        // Calculate the time ratio (0 to 1) since weapon switch was triggered
+        float switchingTimeFactor = 0f;
+        if (weaponSwitchDelay == 0f)
+        {
+            switchingTimeFactor = 1f;
+        }
+        else
+        {
+            switchingTimeFactor = Mathf.Clamp01((Time.time - m_TimeStartedWeaponSwitch) / weaponSwitchDelay);
+        }
+
+        // Handle transiting to new switch state
+        if (switchingTimeFactor >= 1f)
+        {
+            if (m_WeaponSwitchState == WeaponSwitchState.PutDownPrevious)
+            {
+                // Deactivate old weapon
+                WeaponController oldWeapon = GetWeaponAtSlotIndex(ActiveWeaponIndex);
+                if (oldWeapon != null)
+                {
+                    oldWeapon.ShowWeapon(false);
+                }
+
+                ActiveWeaponIndex = m_WeaponSwitchNewWeaponIndex;
+                switchingTimeFactor = 0f;
+
+                // Activate new weapon
+                WeaponController newWeapon = GetWeaponAtSlotIndex(ActiveWeaponIndex);
+                if (onSwitchedToWeapon != null)
+                {
+                    onSwitchedToWeapon.Invoke(newWeapon);
+                }
+
+                if (newWeapon)
+                {
+                    m_TimeStartedWeaponSwitch = Time.time;
+                    m_WeaponSwitchState = WeaponSwitchState.PutUpNew;
+                }
+                else
+                {
+                    // if new weapon is null, don't follow through with putting weapon back up
+                    m_WeaponSwitchState = WeaponSwitchState.Down;
+                }
+            }
+            else if (m_WeaponSwitchState == WeaponSwitchState.PutUpNew)
+            {
+                m_WeaponSwitchState = WeaponSwitchState.Up;
+            }
+        }
     }
 
     public bool GetFireInputDown()
@@ -250,5 +317,13 @@ public class PlayerWeaponsManager : MonoBehaviour
     public WeaponController GetActiveWeapon()
     {
         return GetWeaponAtSlotIndex(ActiveWeaponIndex);
+    }
+
+    void OnWeaponSwitched(WeaponController newWeapon)
+    {
+        if (newWeapon != null)
+        {
+            newWeapon.ShowWeapon(true);
+        }
     }
 }
