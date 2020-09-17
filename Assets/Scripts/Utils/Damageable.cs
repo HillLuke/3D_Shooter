@@ -24,7 +24,6 @@ public class Damageable : MonoBehaviour
 
     public void InflictDamage(float damage, bool isExplosionDamage, GameObject damageSource)
     {
-
         if (health)
         {
             var totalDamage = damage;
