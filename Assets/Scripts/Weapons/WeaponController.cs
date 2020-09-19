@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.Contracts;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UIElements;
@@ -87,6 +88,7 @@ public class WeaponController : MonoBehaviour
 
     AudioSource m_ShootAudioSource;
     private bool m_reloading;
+    private bool m_reloadOverride;
     const string k_AnimAttackParameter = "Attack";
 
     void Awake()
@@ -94,6 +96,11 @@ public class WeaponController : MonoBehaviour
         currentAmmo = maxAmmo;
 
         m_ShootAudioSource = GetComponent<AudioSource>();
+
+        if (owner)
+        {
+            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", false);
+        }
     }
 
     void Update()
@@ -109,27 +116,21 @@ public class WeaponController : MonoBehaviour
 
     void UpdateAmmo()
     {
-        if (currentAmmo == 0 && !m_reloading)
+        if (currentAmmo == 0 && !m_reloading || m_reloadOverride)
         {
             m_reloadStart = Time.time;
             m_reloading = true;
+            m_reloadOverride = false;
             owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
             owner.GetComponent<PlayerController>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
         }
 
         if (m_reloading && Time.time - m_reloadStart > ammoReloadRate)
         {
-            Debug.Log($"Reloaded");
             m_reloading = false;
             owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
             currentAmmo = maxAmmo;
         }
-
-        //if (m_LastTimeShot + ammoReloadDelay < Time.time && m_reloading)
-        //{
-        //    // reloads weapon
-        //    m_CurrentAmmo = maxAmmo;
-        //}
 
         if (maxAmmo == Mathf.Infinity)
         {
@@ -141,20 +142,19 @@ public class WeaponController : MonoBehaviour
         }
         if (isWeaponActive)
         {
-            //Debug.Log($"max {maxAmmo} current {currentAmmo}");
+
         }
     }
 
-    IEnumerator Reload()
+    /// <summary>
+    /// Relaod weapon from user input
+    /// </summary>
+    public void Reload()
     {
-        m_reloading = true;
-        owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
-        owner.GetComponent<PlayerController>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
-        yield return new WaitForSeconds(ammoReloadRate);
-        //Debug.Log($"Reloaded {ammoReloadRate}");
-        owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
-        m_reloading = false;
-        currentAmmo = maxAmmo;
+        if (currentAmmo != maxAmmo)
+        {
+            m_reloadOverride = true;
+        }
     }
 
     public void UseAmmo(float amount)
@@ -268,6 +268,11 @@ public class WeaponController : MonoBehaviour
 
     public void ShowWeapon(bool show)
     {
+        if (!show)
+        {
+            m_reloading = false;
+        }
+
         weaponRoot.SetActive(show);
 
         if (show && changeWeaponSFX)
@@ -277,4 +282,5 @@ public class WeaponController : MonoBehaviour
 
         isWeaponActive = show;
     }
+
 }

@@ -89,6 +89,11 @@ public class PlayerWeaponsManager : MonoBehaviour
         bool hasFired = activeWeapon.HandleShootInputs(
                 GetFireInputDown(),
                 GetFireInputHeld());
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            activeWeapon.Reload();
+        }
     }
 
     private void LateUpdate()
@@ -243,6 +248,7 @@ public class PlayerWeaponsManager : MonoBehaviour
 
     public void SwitchWeapon(bool ascendingOrder)
     {
+        m_PlayerController.Animator.SetBool("Reloading", false);
         int newWeaponIndex = -1;
         int closestSlotDistance = m_WeaponSlots.Length;
         for (int i = 0; i < m_WeaponSlots.Length; i++)
