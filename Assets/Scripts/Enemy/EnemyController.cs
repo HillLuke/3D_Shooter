@@ -6,52 +6,49 @@ using UnityEngine.AI;
 public class EnemyController : MonoBehaviour
 {
     [Header("General")]
-    public Animator Animator;
-    public Health Health;
 
     [Header("General Movement")]
     [SerializeField] private float m_gravityMultiplier = 2f;
     [SerializeField] private float m_StickToGroundForce = 10f;
 
+    private Health m_health;
+    private Animator m_animator;
     private CharacterController m_CharacterController;
-    private CollisionFlags m_collisionFlags;
     private NavMeshAgent m_agent;
+    private CollisionFlags m_collisionFlags;
     private bool m_setup;
-    Vector3 startPosition;
     private bool needsNewPosition;
+    private bool m_roaming;
 
     void Start()
     {
-        m_CharacterController = GetComponent<CharacterController>();
-        Animator = GetComponent<Animator>();
-        Health = GetComponent<Health>();
-        m_agent = GetComponent<NavMeshAgent>();
-
-        Health.onDie += OnDie;
-
-        m_agent.enabled = false;
-        m_agent.updatePosition = false;
-        m_agent.updateRotation = false;
-        m_setup = false;
+        Init();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (m_CharacterController.isGrounded && !m_setup)
-        {
-            m_setup = true;
-            m_agent.enabled = true;
-            needsNewPosition = true;
-        }
-
-        if (!m_setup)
-        {
-            m_collisionFlags =  m_CharacterController.Move(Physics.gravity * m_gravityMultiplier * Time.fixedDeltaTime);
-            m_agent.enabled = false;
-        }
+        // Fall to ground when spawned, setup nav agent on landing
+        FallToGroundOnSpawn();
 
         if (m_setup)
+        {
+            Roam();
+
+
+            //FaceTarget(m_agent.destination);
+
+            //m_agent.destination = (Vector3)(PlayerController.Instance?.gameObject.transform.position);
+            //m_collisionFlags = m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
+            //m_agent.velocity = m_CharacterController.velocity;
+        }
+
+        //m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
+        //m_agent.velocity = m_CharacterController.velocity;
+    }
+
+    private void Roam() 
+    {
+        if (m_roaming)
         {
             if (!m_agent.pathPending)
             {
@@ -69,20 +66,43 @@ public class EnemyController : MonoBehaviour
                 m_agent.destination = NewTarget(gameObject.transform.position);
                 needsNewPosition = false;
             }
-
-            m_agent.updateRotation = true;
-            m_agent.updatePosition = true;
-            //FaceTarget(m_agent.destination);
-
-            //m_agent.destination = (Vector3)(PlayerController.Instance?.gameObject.transform.position);
-            //m_collisionFlags = m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
-            //m_agent.velocity = m_CharacterController.velocity;
         }
+    }
 
+    private void FallToGroundOnSpawn()
+    {
+        if (!m_setup)
+        {
+            if (m_CharacterController.isGrounded)
+            {
+                m_setup = true;
+                m_agent.enabled = true;
+                needsNewPosition = true;
+                m_roaming = true;
+                m_agent.updateRotation = true;
+                m_agent.updatePosition = true;
+            }
+            else
+            {
+                m_collisionFlags = m_CharacterController.Move(Physics.gravity * m_gravityMultiplier * Time.fixedDeltaTime);
+            }
+        }
+    }
 
+    private void Init()
+    {
+        m_CharacterController = GetComponent<CharacterController>();
+        m_animator = GetComponent<Animator>();
+        m_health = GetComponent<Health>();
+        m_agent = GetComponent<NavMeshAgent>();
 
-        //m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
-        //m_agent.velocity = m_CharacterController.velocity;
+        m_health.onDie += OnDie;
+
+        m_agent.enabled = false;
+        m_agent.updatePosition = false;
+        m_agent.updateRotation = false;
+        m_setup = false;
+        m_roaming = false;
     }
 
     private Vector3 NewTarget(Vector3 currentPosition)
@@ -94,7 +114,6 @@ public class EnemyController : MonoBehaviour
         NavMesh.SamplePosition(randomDirection, out hit, roamRadius, 1);
         return hit.position;
     }
-
 
     private void FaceTarget(Vector3 destination)
     {
@@ -131,7 +150,7 @@ public class EnemyController : MonoBehaviour
         m_CharacterController.detectCollisions = false;
         m_CharacterController.enabled = false;
         m_agent.isStopped = true;
-        Animator.SetBool("Death", true);
+        m_animator.SetBool("Death", true);
         StartCoroutine(Death());
     }
 
