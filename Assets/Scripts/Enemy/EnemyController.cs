@@ -17,6 +17,8 @@ public class EnemyController : MonoBehaviour
     private CollisionFlags m_collisionFlags;
     private NavMeshAgent m_agent;
     private bool m_setup;
+    Vector3 startPosition;
+    private bool needsNewPosition;
 
     void Start()
     {
@@ -40,6 +42,7 @@ public class EnemyController : MonoBehaviour
         {
             m_setup = true;
             m_agent.enabled = true;
+            needsNewPosition = true;
         }
 
         if (!m_setup)
@@ -50,10 +53,28 @@ public class EnemyController : MonoBehaviour
 
         if (m_setup)
         {
+            if (!m_agent.pathPending)
+            {
+                if (m_agent.remainingDistance <= m_agent.stoppingDistance)
+                {
+                    if (!m_agent.hasPath || m_agent.velocity.sqrMagnitude == 0f)
+                    {
+                        needsNewPosition = true;
+                    }
+                }
+            }
+
+            if (needsNewPosition)
+            {
+                m_agent.destination = NewTarget(gameObject.transform.position);
+                needsNewPosition = false;
+            }
+
             m_agent.updateRotation = true;
             m_agent.updatePosition = true;
-            m_agent.destination = (Vector3)(PlayerController.Instance?.gameObject.transform.position);
-            FaceTarget(m_agent.destination);
+            //FaceTarget(m_agent.destination);
+
+            //m_agent.destination = (Vector3)(PlayerController.Instance?.gameObject.transform.position);
             //m_collisionFlags = m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
             //m_agent.velocity = m_CharacterController.velocity;
         }
@@ -63,6 +84,17 @@ public class EnemyController : MonoBehaviour
         //m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
         //m_agent.velocity = m_CharacterController.velocity;
     }
+
+    private Vector3 NewTarget(Vector3 currentPosition)
+    {
+        float roamRadius = 20f;
+        Vector3 randomDirection = Random.insideUnitSphere * roamRadius;
+        randomDirection += currentPosition;
+        NavMeshHit hit;
+        NavMesh.SamplePosition(randomDirection, out hit, roamRadius, 1);
+        return hit.position;
+    }
+
 
     private void FaceTarget(Vector3 destination)
     {

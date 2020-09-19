@@ -3601,9 +3601,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2143e49d44f0f274db4b517965cc7041, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SpawnArea: {fileID: 560612976}
-  Prefab: {fileID: 1014156298417547080, guid: 689af50e74286814dbf5001f7c9d0d4e, type: 3}
-  SpawnTime: 0.1
 --- !u!1001 &801943585
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5156,7 +5153,7 @@ RectTransform:
   - {fileID: 1551121516}
   - {fileID: 1562039957}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -9342,12 +9339,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2050488251}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2143e49d44f0f274db4b517965cc7041, type: 3}
+  m_Script: {fileID: 11500000, guid: 223674c619afe0c4d85b1173e19b13b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SpawnArea: {fileID: 2120843704}
-  Prefab: {fileID: 7285820588956328846, guid: 63ebc906f7514394789feec3ffce5cab, type: 3}
-  SpawnTime: 0.5
+  PrefabToSpawn: {fileID: 7285820588956328846, guid: 63ebc906f7514394789feec3ffce5cab, type: 3}
+  SpawnTime: 1
+  maxPrefabs: 10
 --- !u!1001 &2080051162
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9520,7 +9518,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2120843703
 GameObject:
@@ -9829,7 +9827,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7486439918322742892, guid: 57c90ed1009494b46ab64fcf4f946be1, type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7486439918322742892, guid: 57c90ed1009494b46ab64fcf4f946be1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
