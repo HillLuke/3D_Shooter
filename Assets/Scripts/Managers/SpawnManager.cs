@@ -30,6 +30,6 @@ public class SpawnManager : MonoBehaviour
 
     void OnDie()
     {
-        Debug.Log("Dead!");
+        Respawn();
     }
 }

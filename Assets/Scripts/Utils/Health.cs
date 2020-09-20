@@ -8,8 +8,8 @@ public class Health : MonoBehaviour
     public UnityAction onDie;
 
     public float MaxHealth = 100;
-    public float CurrentHealth { get; set; }
-    public bool Invincible { get; set; }
+    public float CurrentHealth;
+    public bool Invincible;
     public bool IsAlive;
 
     private void Start()

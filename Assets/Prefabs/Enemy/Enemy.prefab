@@ -1502,6 +1502,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 100
+  CurrentHealth: 0
+  Invincible: 0
   IsAlive: 0
 --- !u!114 &3800034571098033510
 MonoBehaviour:
@@ -1538,9 +1540,10 @@ MonoBehaviour:
   Character: {fileID: 3800034571098033510}
   DetectionCenter: {fileID: 7285820589763894097}
   CurrentTarget: {fileID: 0}
-  KnownTargetTimeout: 4
+  KnownTargetTimeout: 2
   DetectionRange: 15
   AttackRange: 20
+  KeepDistance: 15
   IsTargetInDetectionRange: 0
   IsTargetInAttackRange: 0
   CanSeeTarget: 0

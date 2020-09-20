@@ -2052,6 +2052,7 @@ MonoBehaviour:
   HitLayer:
     serializedVersion: 2
     m_Bits: 4294967295
+  BulletSpreadOverride: -1
 --- !u!114 &2178823359910794437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2187,6 +2188,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxHealth: 100
+  CurrentHealth: 0
+  Invincible: 0
   IsAlive: 0
 --- !u!114 &2178823359910794441
 MonoBehaviour:

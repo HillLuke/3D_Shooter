@@ -64,7 +64,11 @@ public class EnemyController : MonoBehaviour
             {
                 IsTargetInDetectionRange = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, DetectionRange, DetectionLayer, out RaycastHit DetectHit);
                 IsTargetInAttackRange = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, AttackRange, DetectionLayer, out RaycastHit AttackHit);
-                CanSeeTarget = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, AttackRange, -1, out RaycastHit CanSeeHit);
+                IsTargetWithinRange(CurrentTarget.gameObject.transform.position, AttackRange, -1, out RaycastHit CanSeeHit);
+
+                CanSeeTarget = CanSeeHit.collider?.gameObject == CurrentTarget;
+
+                Debug.Log($"IsTargetInDetectionRange {IsTargetInDetectionRange} --- IsTargetInAttackRange {IsTargetInAttackRange} --- CanSeeTarget {CanSeeTarget}");
 
                 m_agent.destination = CurrentTarget.transform.position;
                 FaceTarget(m_agent.destination);
@@ -79,6 +83,7 @@ public class EnemyController : MonoBehaviour
 
                     if (m_targetLostTime >= KnownTargetTimeout)
                     {
+                        m_targetLostTime = 0;
                         CurrentTarget = null;
                         IsTargetInDetectionRange = false;
                         IsTargetInAttackRange = false;
@@ -135,7 +140,7 @@ public class EnemyController : MonoBehaviour
 
         foreach (var hitCollider in hitColliders)
         {
-            if (IsTargetWithinRange(hitCollider.gameObject.transform.position, DetectionRange, DetectionLayer, out RaycastHit lookathit))
+            if (IsTargetWithinRange(hitCollider.gameObject.transform.position, DetectionRange, -1, out RaycastHit lookathit))
             {                
                 if (lookathit.collider.gameObject == hitCollider.gameObject)
                 {

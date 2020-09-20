@@ -9441,7 +9441,7 @@ MonoBehaviour:
   SpawnArea: {fileID: 2120843704}
   PrefabToSpawn: {fileID: 7285820588956328846, guid: 63ebc906f7514394789feec3ffce5cab, type: 3}
   SpawnTime: 1
-  maxPrefabs: 10
+  maxPrefabs: 1
 --- !u!1001 &2080051162
 PrefabInstance:
   m_ObjectHideFlags: 0

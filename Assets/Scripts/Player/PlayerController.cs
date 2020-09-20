@@ -277,7 +277,17 @@ public class PlayerController : MonoBehaviour
 
     void OnDie()
     {
-        //TODO: Handle death
+        Character.Animator.SetBool("Walking", false);
+        Character.Animator.SetBool("Death", true);
+        m_CharacterController.detectCollisions = false;
+        m_CharacterController.enabled = false;
+        StartCoroutine(Death());
+    }
+
+    IEnumerator Death()
+    {
+        yield return new WaitForSeconds(2f);
+        GameObject.Destroy(gameObject);
     }
 
 }
