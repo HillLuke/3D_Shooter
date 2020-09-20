@@ -46,7 +46,7 @@ public class EnemyController : MonoBehaviour
         // Fall to ground when spawned, setup nav agent on landing
         FallToGroundOnSpawn();
 
-        if (m_setup)
+        if (m_setup && m_health.IsAlive)
         {
             if (!CurrentTarget)
             {
@@ -60,10 +60,7 @@ public class EnemyController : MonoBehaviour
                 FaceTarget(m_agent.destination);
             }
 
-            if (m_health.IsAlive)
-            {
-                m_animator.SetBool("Walking", m_agent.velocity != Vector3.zero);
-            }
+            m_animator.SetBool("Walking", m_agent.velocity != Vector3.zero);
 
             //FaceTarget(m_agent.destination);
 
