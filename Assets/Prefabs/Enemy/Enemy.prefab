@@ -1,5 +1,35 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &699222739787266700
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8353017882927562859}
+  m_Layer: 0
+  m_Name: Muzzle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8353017882927562859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699222739787266700}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -88.8, y: -90.6, z: 1.2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7285820588055959214}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7285820587786563976
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,6 +619,7 @@ Transform:
   m_Children:
   - {fileID: 7285820589035201950}
   - {fileID: 7285820589526315122}
+  - {fileID: 8353017882927562859}
   m_Father: {fileID: 7285820589889949680}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90.9, y: -132.5, z: -279.9}
@@ -1329,7 +1360,6 @@ GameObject:
   - component: {fileID: 7285820588956328840}
   - component: {fileID: 7285820588956328886}
   - component: {fileID: 3817575013488141613}
-  - component: {fileID: 5414207350689371233}
   - component: {fileID: 6037240836895790910}
   - component: {fileID: 8766938819332334882}
   m_Layer: 0
@@ -1423,8 +1453,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb31f8b662fadd643beb0c0334196d02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Animator: {fileID: 0}
-  Health: {fileID: 0}
+  DetectionCenter: {fileID: 7285820589763894097}
+  CurrentTarget: {fileID: 0}
+  KnownTargetTimeout: 4
+  DetectionRange: 20
+  AttackRange: 10
+  TargetInDetectionRange: 0
+  TargetInAttackRange: 0
+  CanSeeTarget: 0
+  DetectionLayer:
+    serializedVersion: 2
+    m_Bits: 2048
   m_gravityMultiplier: 2
   m_StickToGroundForce: 10
 --- !u!114 &7285820588956328886
@@ -1463,20 +1502,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 2
---- !u!136 &5414207350689371233
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7285820588956328846}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 0
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &6037240836895790910
 Rigidbody:
   m_ObjectHideFlags: 0

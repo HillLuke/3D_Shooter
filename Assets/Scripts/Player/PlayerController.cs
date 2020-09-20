@@ -35,6 +35,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CurveControlledBob m_HeadBob = new CurveControlledBob();
     [SerializeField] private FOVKick m_FovKick = new FOVKick();
     [SerializeField] private float m_killHeight = -50f;
+    [Header("Aiming")]
+    [SerializeField] private float m_normalFOV = 70;
+    [SerializeField] private float m_aimingFOV = 20;
+
 
     private CharacterController m_CharacterController;
     private PlayerLookController m_playerLook;
@@ -76,8 +80,6 @@ public class PlayerController : MonoBehaviour
 
         Health.onDie += OnDie;
 
-        StartCoroutine(Regen());
-
         Instance = this;
     }
 
@@ -96,6 +98,15 @@ public class PlayerController : MonoBehaviour
         if (!m_Jump)
         {
             m_Jump = Input.GetButtonDown("Jump");
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            MainCamera.fieldOfView = m_aimingFOV;
+        }
+        else
+        {
+            MainCamera.fieldOfView = m_normalFOV;
         }
 
         if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
@@ -271,14 +282,4 @@ public class PlayerController : MonoBehaviour
         //TODO: Handle death
     }
 
-    IEnumerator Regen()
-    {
-        while (true)
-        {
-
-
-
-            yield return new WaitForSeconds(1);
-        }
-    }
 }
