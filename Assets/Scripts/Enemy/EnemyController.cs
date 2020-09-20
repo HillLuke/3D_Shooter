@@ -7,6 +7,22 @@ public class EnemyController : MonoBehaviour
 {
     [Header("General")]
 
+    [Header("Player Detection")]
+    public Transform DetectionCenter;
+    public GameObject CurrentTarget;
+    public float KnownTargetTimeout = 4f;
+    public float DetectionRange = 20f;
+    public float AttackRange = 10f;
+    public bool TargetInDetectionRange;
+    public bool TargetInAttackRange;
+    public bool CanSeeTarget;
+    public LayerMask DetectionLayer;
+
+    [Header("Weapon")]
+    public Transform WeaponParentSocket;
+    public WeaponController Weapon;
+    public LayerMask FPSWeaponLayer;
+
     [Header("General Movement")]
     [SerializeField] private float m_gravityMultiplier = 2f;
     [SerializeField] private float m_StickToGroundForce = 10f;
@@ -32,8 +48,22 @@ public class EnemyController : MonoBehaviour
 
         if (m_setup)
         {
-            Roam();
+            if (!CurrentTarget)
+            {
+                // Enemy has no target so will randomly roam around
+                CheckIfPlayerInDetectionRadius();
+                Roam();
+            }
+            else
+            {
+                m_agent.destination = CurrentTarget.transform.position;
+                FaceTarget(m_agent.destination);
+            }
 
+            if (m_health.IsAlive)
+            {
+                m_animator.SetBool("Walking", m_agent.velocity != Vector3.zero);
+            }
 
             //FaceTarget(m_agent.destination);
 
@@ -44,6 +74,28 @@ public class EnemyController : MonoBehaviour
 
         //m_CharacterController.Move(m_agent.desiredVelocity.normalized * m_agent.speed * Time.deltaTime);
         //m_agent.velocity = m_CharacterController.velocity;
+    }
+
+    private void CheckIfPlayerInDetectionRadius()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(DetectionCenter.position, DetectionRange, DetectionLayer);
+
+        foreach (var hitCollider in hitColliders)
+        {
+            Debug.DrawRay(DetectionCenter.position, (hitCollider.gameObject.transform.position - gameObject.transform.position), Color.red);
+            if (Physics.Raycast(DetectionCenter.position, (hitCollider.gameObject.transform.position - gameObject.transform.position), out RaycastHit lookathit, DetectionRange, -1, QueryTriggerInteraction.Ignore))
+            {
+                
+                if (lookathit.collider.gameObject == hitCollider.gameObject)
+                {
+                    CurrentTarget = hitCollider.gameObject;
+                    TargetInDetectionRange = true;
+                    CanSeeTarget = true;
+                }
+            }
+
+            break; // for now just use first collider
+        }
     }
 
     private void Roam() 
@@ -103,6 +155,11 @@ public class EnemyController : MonoBehaviour
         m_agent.updateRotation = false;
         m_setup = false;
         m_roaming = false;
+
+        WeaponController weaponInstance = Instantiate(Weapon, WeaponParentSocket);
+        weaponInstance.owner = gameObject;
+        weaponInstance.sourcePrefab = Weapon.gameObject;
+        weaponInstance.gameObject.layer = Mathf.RoundToInt(Mathf.Log(FPSWeaponLayer.value, 2));
     }
 
     private Vector3 NewTarget(Vector3 currentPosition)
@@ -147,10 +204,11 @@ public class EnemyController : MonoBehaviour
 
     void OnDie()
     {
+        m_animator.SetBool("Walking", false);
+        m_animator.SetBool("Death", true);
         m_CharacterController.detectCollisions = false;
         m_CharacterController.enabled = false;
         m_agent.isStopped = true;
-        m_animator.SetBool("Death", true);
         StartCoroutine(Death());
     }
 
