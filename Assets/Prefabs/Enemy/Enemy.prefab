@@ -1525,6 +1525,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 3895
   BulletSpreadOverride: 5
+  DamageMultiplierOverride: 0.5
 --- !u!114 &7285820588956328840
 MonoBehaviour:
   m_ObjectHideFlags: 0

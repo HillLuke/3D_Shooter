@@ -68,6 +68,10 @@ public class ProjectileStandard : MonoBehaviour
     {
         Character = m_ProjectileBase.owner.GetComponent<Character>();
         hittableLayers = Character.HitLayer;
+        if (Character.DamageMultiplierOverride != -1)
+        {
+            damage = damage * Character.DamageMultiplierOverride;
+        }
         m_ShootTime = Time.time;
         m_LastRootPosition = root.position;
         m_Velocity = transform.forward * speed;

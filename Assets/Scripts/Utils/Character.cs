@@ -13,6 +13,7 @@ public class Character : MonoBehaviour
     public Vector3 Target;
     public LayerMask HitLayer;
     public float BulletSpreadOverride = -1;
+    public float DamageMultiplierOverride = -1;
 
     void Start()
     {
