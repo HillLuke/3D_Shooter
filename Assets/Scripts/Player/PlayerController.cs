@@ -58,6 +58,10 @@ public class PlayerController : MonoBehaviour
     private const float StaminaIncreasePerFrame = 20.0f;
     private const float StaminaTimeToRegen = 3.0f;
 
+    private float HealthRegenTimer = 0.0f;
+    private const float HealthIncreasePerFrame = 10.0f;
+    private const float HealthTimeToRegen = 3.0f;
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -77,6 +81,7 @@ public class PlayerController : MonoBehaviour
         CurrentStamina = MaxStamina;
 
         Character.Health.onDie += OnDie;
+        Character.Health.onDamaged += OnDamage;
 
         Instance = this;
     }
@@ -152,6 +157,19 @@ public class PlayerController : MonoBehaviour
                 Character.Animator.SetBool("Running", !m_isWalking);
                 Character.Animator.SetBool("Walking", m_isWalking);
             }           
+        }
+
+        if (Character.Health.CurrentHealth < Character.Health.MaxHealth)
+        {
+            if (HealthRegenTimer >= HealthTimeToRegen)
+            {
+                Character.Health.Heal((HealthIncreasePerFrame * Time.deltaTime));
+                Character.Health.CurrentHealth = Mathf.Clamp(Character.Health.CurrentHealth + (HealthIncreasePerFrame * Time.deltaTime), 0.0f, Character.Health.MaxHealth);
+            }
+            else
+            {
+                HealthRegenTimer += Time.deltaTime;
+            }
         }
     }
 
@@ -282,6 +300,11 @@ public class PlayerController : MonoBehaviour
         m_CharacterController.detectCollisions = false;
         m_CharacterController.enabled = false;
         StartCoroutine(Death());
+    }
+
+    void OnDamage(float damage, GameObject damageSource)
+    {
+        HealthRegenTimer = 0f;
     }
 
     IEnumerator Death()

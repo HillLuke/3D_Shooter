@@ -22,6 +22,8 @@ public class PlayerLookController : MonoBehaviour
 
     private void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public void Init(Transform character, Transform camera)
@@ -72,8 +74,8 @@ public class PlayerLookController : MonoBehaviour
     public void UpdateCursorLock()
     {
         //if the user set "lockCursor" we check & properly lock the cursos
-        if (lockCursor)
-            InternalLockUpdate();
+        //if (lockCursor)
+        //    InternalLockUpdate();
     }
 
     private void InternalLockUpdate()
