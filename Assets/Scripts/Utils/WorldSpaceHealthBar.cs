@@ -20,7 +20,10 @@ public class WorldspaceHealthBar : MonoBehaviour
         healthBarImage.fillAmount = health.CurrentHealth / health.MaxHealth;
 
         // rotate health bar to face the camera/player
-        healthBarPivot.LookAt(Camera.main.transform.position);
+        if (Camera.main)
+        {
+            healthBarPivot.LookAt(Camera.main.transform.position);
+        }
 
         // hide health bar if needed
         if (hideFullHealthBar)

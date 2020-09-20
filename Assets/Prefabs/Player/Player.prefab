@@ -2053,6 +2053,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   BulletSpreadOverride: -1
+  DamageMultiplierOverride: -1
 --- !u!114 &2178823359910794437
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2070,6 +2071,7 @@ MonoBehaviour:
   RotatePoint: {fileID: 2178823359579407980}
   Character: {fileID: 4529747070815117082}
   PlayerWeaponsManager: {fileID: 2178823359910794441}
+  AimConstraint: {fileID: 2178823358735063276}
   m_walkSpeed: 5
   m_StepInterval: 5
   m_runSpeed: 10

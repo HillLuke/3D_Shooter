@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
 
 public class PlayerController : MonoBehaviour
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public Transform RotatePoint;
     public Character Character;
     public PlayerWeaponsManager PlayerWeaponsManager;
+    public AimConstraint AimConstraint;
 
     [Header("Walking")]
     [SerializeField] private float m_walkSpeed;
@@ -295,6 +297,7 @@ public class PlayerController : MonoBehaviour
 
     void OnDie()
     {
+        AimConstraint.constraintActive = false;
         Character.Animator.SetBool("Walking", false);
         Character.Animator.SetBool("Death", true);
         m_CharacterController.detectCollisions = false;
