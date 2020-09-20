@@ -17,10 +17,13 @@ public class PlayerWeaponsManager : MonoBehaviour
     public Transform WeaponParentSocket;
     public Transform Muzzle;
     public Transform Target;
+    public Transform LookAt;
     public List<WeaponController> StartingWeapons = new List<WeaponController>();
     public int ActiveWeaponIndex { get; private set; }
     public bool IsPointingAtEnemy { get; private set; }
     public LayerMask FPSWeaponLayer;
+    public LayerMask AimCollision;
+    public LayerMask LookAtLayerMask;
     public float weaponSwitchDelay = 1f;
 
     public UnityAction<WeaponController> onSwitchedToWeapon;
@@ -73,7 +76,7 @@ public class PlayerWeaponsManager : MonoBehaviour
         IsPointingAtEnemy = false;
         if (activeWeapon)
         {
-            if (Physics.Raycast(PlayerCamera.transform.position, PlayerCamera.transform.forward, out RaycastHit hit, 1000, -1, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(PlayerCamera.transform.position, PlayerCamera.transform.forward, out RaycastHit hit, 200, AimCollision, QueryTriggerInteraction.Ignore))
             {
                 if (hit.collider.GetComponentInParent<EnemyController>())
                 {
@@ -83,6 +86,14 @@ public class PlayerWeaponsManager : MonoBehaviour
                 {
                     Target.transform.position = hit.point;
                 }
+            }
+        }
+
+        if (Physics.Raycast(PlayerCamera.transform.position, PlayerCamera.transform.forward, out RaycastHit lookathit, 200, LookAtLayerMask, QueryTriggerInteraction.Ignore))
+        {
+            if (LookAt != null)
+            {
+                LookAt.transform.position = lookathit.point;
             }
         }
 
