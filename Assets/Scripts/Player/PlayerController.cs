@@ -12,8 +12,7 @@ public class PlayerController : MonoBehaviour
     public Camera MainCamera;
     public AudioListener AudioListener;
     public Transform RotatePoint;
-    public Animator Animator;
-    public Health Health;
+    public Character Character;
     public PlayerWeaponsManager PlayerWeaponsManager;
 
     [Header("Walking")]
@@ -38,7 +37,6 @@ public class PlayerController : MonoBehaviour
     [Header("Aiming")]
     [SerializeField] private float m_normalFOV = 70;
     [SerializeField] private float m_aimingFOV = 20;
-
 
     private CharacterController m_CharacterController;
     private PlayerLookController m_playerLook;
@@ -66,7 +64,7 @@ public class PlayerController : MonoBehaviour
         m_CharacterController = GetComponent<CharacterController>();
         m_playerLook = GetComponent<PlayerLookController>();
         m_AudioSource = GetComponent<AudioSource>();
-        Health = GetComponent<Health>();
+        Character = GetComponent<Character>();
         PlayerWeaponsManager = GetComponent<PlayerWeaponsManager>();
 
         m_HeadBob.Setup(MainCamera, m_StepInterval);
@@ -78,7 +76,7 @@ public class PlayerController : MonoBehaviour
         m_Jumping = false;
         CurrentStamina = MaxStamina;
 
-        Health.onDie += OnDie;
+        Character.Health.onDie += OnDie;
 
         Instance = this;
     }
@@ -86,9 +84,9 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (Health.IsAlive && transform.position.y < m_killHeight)
+        if (Character.Health.IsAlive && transform.position.y < m_killHeight)
         {
-            Health.Kill();
+            Character.Health.Kill();
         }
 
         //Rotate to face mouse
@@ -136,23 +134,23 @@ public class PlayerController : MonoBehaviour
 
         if (m_isIdle & m_CharacterController.isGrounded)
         {
-            Animator.SetBool("Running", false);
-            Animator.SetBool("Walking", false);
-            Animator.SetBool("Jumping", false);
+            Character.Animator.SetBool("Running", false);
+            Character.Animator.SetBool("Walking", false);
+            Character.Animator.SetBool("Jumping", false);
         }
         else
         {
             if (m_Jumping)
             {
-                Animator.SetBool("Jumping", true);
-                Animator.SetBool("Running", false);
-                Animator.SetBool("Walking", false);
+                Character.Animator.SetBool("Jumping", true);
+                Character.Animator.SetBool("Running", false);
+                Character.Animator.SetBool("Walking", false);
             }
             else
             {
-                Animator.SetBool("Jumping", false);
-                Animator.SetBool("Running", !m_isWalking);
-                Animator.SetBool("Walking", m_isWalking);
+                Character.Animator.SetBool("Jumping", false);
+                Character.Animator.SetBool("Running", !m_isWalking);
+                Character.Animator.SetBool("Walking", m_isWalking);
             }           
         }
     }
@@ -203,8 +201,8 @@ public class PlayerController : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        Animator.SetFloat("Dirx", horizontal);
-        Animator.SetFloat("Diry", vertical);
+        Character.Animator.SetFloat("Dirx", horizontal);
+        Character.Animator.SetFloat("Diry", vertical);
 
         m_isIdle = horizontal == 0 && vertical == 0;
 

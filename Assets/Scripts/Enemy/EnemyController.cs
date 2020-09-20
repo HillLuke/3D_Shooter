@@ -1,43 +1,49 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyController : MonoBehaviour
 {
     [Header("General")]
+    public Character Character;
 
     [Header("Player Detection")]
     public Transform DetectionCenter;
     public GameObject CurrentTarget;
-    public float KnownTargetTimeout = 4f;
+    public float KnownTargetTimeout = 2f;
     public float DetectionRange = 20f;
     public float AttackRange = 10f;
-    public bool TargetInDetectionRange;
-    public bool TargetInAttackRange;
+    public float KeepDistance = 15f;
+    public bool IsTargetInDetectionRange;
+    public bool IsTargetInAttackRange;
     public bool CanSeeTarget;
     public LayerMask DetectionLayer;
 
     [Header("Weapon")]
     public Transform WeaponParentSocket;
     public WeaponController Weapon;
+    public WeaponController WeaponInstance;
     public LayerMask FPSWeaponLayer;
 
     [Header("General Movement")]
     [SerializeField] private float m_gravityMultiplier = 2f;
     [SerializeField] private float m_StickToGroundForce = 10f;
 
-    private Health m_health;
-    private Animator m_animator;
     private CharacterController m_CharacterController;
     private NavMeshAgent m_agent;
     private CollisionFlags m_collisionFlags;
     private bool m_setup;
     private bool needsNewPosition;
     private bool m_roaming;
+    private float m_targetLostTime;
 
     void Start()
     {
+        Character = GetComponent<Character>();
+
         Init();
     }
 
@@ -46,21 +52,57 @@ public class EnemyController : MonoBehaviour
         // Fall to ground when spawned, setup nav agent on landing
         FallToGroundOnSpawn();
 
-        if (m_setup && m_health.IsAlive)
+        if (m_setup && Character.Health.IsAlive)
         {
             if (!CurrentTarget)
             {
                 // Enemy has no target so will randomly roam around
-                CheckIfPlayerInDetectionRadius();
+                CheckIfATargetIsInDetectionRange();
                 Roam();
             }
             else
             {
+                IsTargetInDetectionRange = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, DetectionRange, DetectionLayer, out RaycastHit DetectHit);
+                IsTargetInAttackRange = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, AttackRange, DetectionLayer, out RaycastHit AttackHit);
+                CanSeeTarget = IsTargetWithinRange(CurrentTarget.gameObject.transform.position, AttackRange, -1, out RaycastHit CanSeeHit);
+
                 m_agent.destination = CurrentTarget.transform.position;
                 FaceTarget(m_agent.destination);
+
+                // Return to roaming if target is lost for more than KnownTargetTimeout
+                if (!CanSeeTarget)
+                {
+                    if (m_targetLostTime == 0)
+                    {
+                        m_targetLostTime = Time.deltaTime;
+                    }
+
+                    if (m_targetLostTime >= KnownTargetTimeout)
+                    {
+                        CurrentTarget = null;
+                        IsTargetInDetectionRange = false;
+                        IsTargetInAttackRange = false;
+                        CanSeeTarget = false;
+                        m_agent.isStopped = true;
+                        m_agent.ResetPath();
+                    }
+                    else
+                    {
+                        m_targetLostTime += Time.deltaTime;
+                    }
+                }
+                else
+                {
+                    m_targetLostTime = 0;
+                }
+
+                if (IsTargetInAttackRange && CanSeeTarget)
+                {
+                    ShootTarget();
+                }
             }
 
-            m_animator.SetBool("Walking", m_agent.velocity != Vector3.zero);
+            Character.Animator.SetBool("Walking", m_agent.velocity != Vector3.zero);
 
             //FaceTarget(m_agent.destination);
 
@@ -73,20 +115,32 @@ public class EnemyController : MonoBehaviour
         //m_agent.velocity = m_CharacterController.velocity;
     }
 
-    private void CheckIfPlayerInDetectionRadius()
+    private bool IsTargetWithinRange(Vector3 target, float range,LayerMask layerMask, out RaycastHit lookathit)
+    {
+        if (Physics.Raycast(DetectionCenter.position, (target - gameObject.transform.position), out RaycastHit hit, range, layerMask, QueryTriggerInteraction.Ignore))
+        {
+            lookathit = hit;
+            return true;
+        }
+        else
+        {
+            lookathit = hit;
+            return false;
+        }
+    }
+
+    private void CheckIfATargetIsInDetectionRange()
     {
         Collider[] hitColliders = Physics.OverlapSphere(DetectionCenter.position, DetectionRange, DetectionLayer);
 
         foreach (var hitCollider in hitColliders)
         {
-            Debug.DrawRay(DetectionCenter.position, (hitCollider.gameObject.transform.position - gameObject.transform.position), Color.red);
-            if (Physics.Raycast(DetectionCenter.position, (hitCollider.gameObject.transform.position - gameObject.transform.position), out RaycastHit lookathit, DetectionRange, -1, QueryTriggerInteraction.Ignore))
-            {
-                
+            if (IsTargetWithinRange(hitCollider.gameObject.transform.position, DetectionRange, DetectionLayer, out RaycastHit lookathit))
+            {                
                 if (lookathit.collider.gameObject == hitCollider.gameObject)
                 {
                     CurrentTarget = hitCollider.gameObject;
-                    TargetInDetectionRange = true;
+                    IsTargetInDetectionRange = true;
                     CanSeeTarget = true;
                 }
             }
@@ -141,22 +195,21 @@ public class EnemyController : MonoBehaviour
     private void Init()
     {
         m_CharacterController = GetComponent<CharacterController>();
-        m_animator = GetComponent<Animator>();
-        m_health = GetComponent<Health>();
         m_agent = GetComponent<NavMeshAgent>();
 
-        m_health.onDie += OnDie;
+        Character.Health.onDie += OnDie;
 
+        m_agent.stoppingDistance = KeepDistance;
         m_agent.enabled = false;
         m_agent.updatePosition = false;
         m_agent.updateRotation = false;
         m_setup = false;
         m_roaming = false;
 
-        WeaponController weaponInstance = Instantiate(Weapon, WeaponParentSocket);
-        weaponInstance.owner = gameObject;
-        weaponInstance.sourcePrefab = Weapon.gameObject;
-        weaponInstance.gameObject.layer = Mathf.RoundToInt(Mathf.Log(FPSWeaponLayer.value, 2));
+        WeaponInstance = Instantiate(Weapon, WeaponParentSocket);
+        WeaponInstance.Owner = gameObject;
+        WeaponInstance.sourcePrefab = Weapon.gameObject;
+        WeaponInstance.gameObject.layer = Mathf.RoundToInt(Mathf.Log(FPSWeaponLayer.value, 2));
     }
 
     private Vector3 NewTarget(Vector3 currentPosition)
@@ -175,6 +228,19 @@ public class EnemyController : MonoBehaviour
         lookPos.y = 0;
         Quaternion rotation = Quaternion.LookRotation(lookPos);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotation, 20f);
+    }
+
+    private void ShootTarget()
+    {
+        if (CurrentTarget)
+        {
+            if (Physics.Raycast(DetectionCenter.position, (CurrentTarget.gameObject.transform.position - gameObject.transform.position), out RaycastHit lookathit, AttackRange, DetectionLayer, QueryTriggerInteraction.Ignore))
+            {
+                Character.Target = lookathit.point;
+                WeaponInstance.HandleShootInputs(true, true);
+            }
+        }
+
     }
 
     void FixedUpdate()
@@ -201,8 +267,8 @@ public class EnemyController : MonoBehaviour
 
     void OnDie()
     {
-        m_animator.SetBool("Walking", false);
-        m_animator.SetBool("Death", true);
+        Character.Animator.SetBool("Walking", false);
+        Character.Animator.SetBool("Death", true);
         m_CharacterController.detectCollisions = false;
         m_CharacterController.enabled = false;
         m_agent.isStopped = true;

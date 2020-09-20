@@ -9,8 +9,8 @@ public class PlayerHealthBar : MonoBehaviour
     {
         try
         {
-            float current = (float)(PlayerController.Instance?.Health?.CurrentHealth);
-            float max = (float)(PlayerController.Instance?.Health?.MaxHealth);
+            float current = (float)(PlayerController.Instance?.Character.Health?.CurrentHealth);
+            float max = (float)(PlayerController.Instance?.Character.Health?.MaxHealth);
             FillImage.fillAmount = current / max;
         }
         catch (System.Exception)

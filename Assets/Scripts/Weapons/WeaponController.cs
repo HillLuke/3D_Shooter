@@ -26,11 +26,6 @@ public class WeaponController : MonoBehaviour
     [Header("Information")]
     [Tooltip("The name that will be displayed in the UI for this weapon")]
     public string weaponName;
-    [Tooltip("The image that will be displayed in the UI for this weapon")]
-    public Sprite weaponIcon;
-
-    [Tooltip("Default data for the crosshair")]
-    public CrosshairData crosshairDataDefault;
 
     [Header("Internal References")]
     [Tooltip("The root object for the weapon, this is what will be deactivated when the weapon isn't active")]
@@ -57,8 +52,6 @@ public class WeaponController : MonoBehaviour
     public float maxAmmo = 8;
 
     [Header("Audio & Visual")]
-    [Tooltip("Optional weapon animator for OnShoot animations")]
-    public Animator weaponAnimator;
     [Tooltip("Prefab of the muzzle flash")]
     public GameObject muzzleFlashPrefab;
     [Tooltip("Unparent the muzzle flash instance on spawn")]
@@ -75,8 +68,15 @@ public class WeaponController : MonoBehaviour
     float m_reloadStart;
     float m_TimeBeginCharge;
     Vector3 m_LastMuzzlePosition;
+    GameObject m_owner;
 
-    public GameObject owner { get; set; }
+    public GameObject Owner {
+        get { return m_owner; } 
+        set {
+            m_owner = value;
+            Character = m_owner.GetComponent<Character>();
+        }        
+    }
     public GameObject sourcePrefab { get; set; }
     public bool isCharging { get; private set; }
     public float currentAmmoRatio { get; private set; }
@@ -86,10 +86,10 @@ public class WeaponController : MonoBehaviour
     public Vector3 muzzleWorldVelocity { get; private set; }
     public float GetAmmoNeededToShoot() => (1) / maxAmmo;
 
-    AudioSource m_ShootAudioSource;
+    private AudioSource m_ShootAudioSource;
     private bool m_reloading;
     private bool m_reloadOverride;
-    const string k_AnimAttackParameter = "Attack";
+    private Character Character;
 
     void Awake()
     {
@@ -97,9 +97,9 @@ public class WeaponController : MonoBehaviour
 
         m_ShootAudioSource = GetComponent<AudioSource>();
 
-        if (owner)
+        if (Character)
         {
-            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", false);
+            Character.Animator.SetBool("Reloading", false);
         }
     }
 
@@ -121,14 +121,14 @@ public class WeaponController : MonoBehaviour
             m_reloadStart = Time.time;
             m_reloading = true;
             m_reloadOverride = false;
-            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
-            owner.GetComponent<PlayerController>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
+            Owner.GetComponent<Character>().Animator.SetBool("Reloading", m_reloading);
+            Owner.GetComponent<Character>().Animator.SetFloat("ReloadSpeed", ammoReloadRate);
         }
 
         if (m_reloading && Time.time - m_reloadStart > ammoReloadRate)
         {
             m_reloading = false;
-            owner.GetComponent<PlayerController>().Animator.SetBool("Reloading", m_reloading);
+            Owner.GetComponent<Character>().Animator.SetBool("Reloading", m_reloading);
             currentAmmo = maxAmmo;
         }
 
@@ -208,17 +208,12 @@ public class WeaponController : MonoBehaviour
 
     void HandleShoot()
     {
-        var ownerWeaponManager = owner.GetComponent<PlayerWeaponsManager>();
-        var muzzle = owner.GetComponent<PlayerWeaponsManager>().Muzzle;
-
         // spawn all bullets with random direction
         for (int i = 0; i < bulletsPerShot; i++)
         {
-
-            Vector3 fromPosition = ownerWeaponManager.Muzzle.transform.position;
-            Vector3 toPosition = ownerWeaponManager.Target.transform.position;
+            Vector3 fromPosition = Character.Muzzle.transform.position;
+            Vector3 toPosition = Character.Target;
             Vector3 direction = toPosition - fromPosition;
-            Vector3 centerCamera = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width / 2, Screen.height / 2, 0));
 
             ProjectileBase newProjectile = Instantiate(projectilePrefab, fromPosition, Quaternion.LookRotation(GetShotDirectionWithinSpread(direction)));
             newProjectile.Shoot(this);
@@ -227,7 +222,7 @@ public class WeaponController : MonoBehaviour
         // muzzle flash
         if (muzzleFlashPrefab != null)
         {
-            GameObject muzzleFlashInstance = Instantiate(muzzleFlashPrefab, muzzle.position, muzzle.rotation, muzzle.transform);
+            GameObject muzzleFlashInstance = Instantiate(muzzleFlashPrefab, Character.Muzzle.position, Character.Muzzle.rotation, Character.Muzzle.transform);
             // Unparent the muzzleFlashInstance
             if (unparentMuzzleFlash)
             {
@@ -245,12 +240,6 @@ public class WeaponController : MonoBehaviour
             m_ShootAudioSource.PlayOneShot(shootSFX);
         }
 
-        // Trigger attack animation if there is any
-        if (weaponAnimator)
-        {
-            weaponAnimator.SetTrigger(k_AnimAttackParameter);
-        }
-
         // Callback on shoot
         if (onShoot != null)
         {
@@ -260,10 +249,20 @@ public class WeaponController : MonoBehaviour
 
     public Vector3 GetShotDirectionWithinSpread(Vector3 point)
     {
-        float spreadAngleRatio = bulletSpreadAngle / 180f;
-        Vector3 spreadWorldDirection = Vector3.Slerp(point, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+        if (Character && Character.BulletSpreadOverride > bulletSpreadAngle)
+        {
+            float spreadAngleRatio = Character.BulletSpreadOverride / 180f;
+            Vector3 spreadWorldDirection = Vector3.Slerp(point, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
 
-        return spreadWorldDirection;
+            return spreadWorldDirection;
+        }
+        else
+        {
+            float spreadAngleRatio = bulletSpreadAngle / 180f;
+            Vector3 spreadWorldDirection = Vector3.Slerp(point, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+
+            return spreadWorldDirection;
+        }
     }
 
     public void ShowWeapon(bool show)

@@ -12,7 +12,7 @@ public class ProjectileBase : MonoBehaviour
 
     public void Shoot(WeaponController controller)
     {
-        owner = controller.owner;
+        owner = controller.Owner;
         initialPosition = transform.position;
         initialDirection = transform.forward;
         inheritedMuzzleVelocity = controller.muzzleWorldVelocity;

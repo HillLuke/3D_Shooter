@@ -45,6 +45,7 @@ public class ProjectileStandard : MonoBehaviour
     public Color radiusColor = Color.cyan * 0.2f;
 
     ProjectileBase m_ProjectileBase;
+    Character Character;
     Vector3 m_LastRootPosition;
     Vector3 m_Velocity;
     bool m_HasTrajectoryOverride;
@@ -58,8 +59,6 @@ public class ProjectileStandard : MonoBehaviour
     private void OnEnable()
     {
         m_ProjectileBase = GetComponent<ProjectileBase>();
-        //DebugUtility.HandleErrorIfNullGetComponent<ProjectileBase, ProjectileStandard>(m_ProjectileBase, this, gameObject);
-
         m_ProjectileBase.onShoot += OnShoot;
 
         Destroy(gameObject, maxLifeTime);
@@ -67,7 +66,8 @@ public class ProjectileStandard : MonoBehaviour
 
     void OnShoot()
     {
-        PlayerWeaponsManager playerWeaponsManager = m_ProjectileBase.owner.GetComponent<PlayerWeaponsManager>();
+        Character = m_ProjectileBase.owner.GetComponent<Character>();
+        hittableLayers = Character.HitLayer;
         m_ShootTime = Time.time;
         m_LastRootPosition = root.position;
         m_Velocity = transform.forward * speed;
@@ -77,36 +77,6 @@ public class ProjectileStandard : MonoBehaviour
         // Ignore colliders of owner
         Collider[] ownerColliders = m_ProjectileBase.owner.GetComponentsInChildren<Collider>();
         m_IgnoredColliders.AddRange(ownerColliders);
-
-        // Handle case of player shooting (make projectiles not go through walls, and remember center-of-screen trajectory)
-        if (playerWeaponsManager)
-        {
-            Vector3 fromPosition = playerWeaponsManager.Muzzle.transform.position;
-            Vector3 toPosition = playerWeaponsManager.Target.transform.position;
-            Vector3 direction = toPosition - fromPosition;
-            m_HasTrajectoryOverride = true;
-
-            Vector3 cameraToMuzzle = (m_ProjectileBase.initialPosition - playerWeaponsManager.PlayerCamera.transform.position);
-
-            m_TrajectoryCorrectionVector = Vector3.ProjectOnPlane(-cameraToMuzzle, playerWeaponsManager.PlayerCamera.transform.forward);
-            if (trajectoryCorrectionDistance == 0)
-            {
-                transform.position += m_TrajectoryCorrectionVector;
-                m_ConsumedTrajectoryCorrectionVector = m_TrajectoryCorrectionVector;
-            }
-            else if (trajectoryCorrectionDistance < 0)
-            {
-                m_HasTrajectoryOverride = false;
-            }
-
-            if (Physics.Raycast(playerWeaponsManager.PlayerCamera.transform.position, direction.normalized, out RaycastHit hit, direction.magnitude, hittableLayers, k_TriggerInteraction))
-            {
-                if (IsHitValid(hit))
-                {
-                    OnHit(hit.point, hit.normal, hit.collider);
-                }
-            }
-        }
     }
 
     void Update()

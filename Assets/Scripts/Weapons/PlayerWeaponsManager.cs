@@ -15,7 +15,6 @@ public class PlayerWeaponsManager : MonoBehaviour
 
     public Camera PlayerCamera;
     public Transform WeaponParentSocket;
-    public Transform Muzzle;
     public Transform Target;
     public Transform LookAt;
     public List<WeaponController> StartingWeapons = new List<WeaponController>();
@@ -30,7 +29,7 @@ public class PlayerWeaponsManager : MonoBehaviour
     public UnityAction<WeaponController, int> onAddedWeapon;
     public UnityAction<WeaponController, int> onRemovedWeapon;
 
-    private PlayerController m_PlayerController;
+    private Character Character;
     private WeaponController[] m_WeaponSlots = new WeaponController[9]; // 9 available weapon slots
     private WeaponSwitchState m_WeaponSwitchState;
     private int m_WeaponSwitchNewWeaponIndex;
@@ -40,7 +39,7 @@ public class PlayerWeaponsManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        m_PlayerController = GetComponent<PlayerController>();
+        Character = GetComponent<Character>();
         
         ActiveWeaponIndex = -1;
         m_WeaponSwitchState = WeaponSwitchState.Down;
@@ -85,6 +84,7 @@ public class PlayerWeaponsManager : MonoBehaviour
                 if (Target != null)
                 {
                     Target.transform.position = hit.point;
+                    Character.Target = (hit.point);
                 }
             }
         }
@@ -94,6 +94,7 @@ public class PlayerWeaponsManager : MonoBehaviour
             if (LookAt != null)
             {
                 LookAt.transform.position = lookathit.point;
+                Character.Target = lookathit.point;
             }
         }
 
@@ -215,7 +216,7 @@ public class PlayerWeaponsManager : MonoBehaviour
                 weaponInstance.transform.localRotation = Quaternion.identity;
 
                 // Set owner to this gameObject so the weapon can alter projectile/damage logic accordingly
-                weaponInstance.owner = gameObject;
+                weaponInstance.Owner = gameObject;
                 weaponInstance.sourcePrefab = weaponPrefab.gameObject;
 
                 // Assign the first person layer to the weapon
@@ -259,7 +260,7 @@ public class PlayerWeaponsManager : MonoBehaviour
 
     public void SwitchWeapon(bool ascendingOrder)
     {
-        m_PlayerController.Animator.SetBool("Reloading", false);
+        Character.Animator.SetBool("Reloading", false);
         int newWeaponIndex = -1;
         int closestSlotDistance = m_WeaponSlots.Length;
         for (int i = 0; i < m_WeaponSlots.Length; i++)
